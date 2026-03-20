@@ -43,7 +43,7 @@ and runs automatically across multiple input sizes and input types
 All arrays contain integers in the range **[0, n-1]**
 
 ### Input sizes tested:
-`n = 1000, 5000, 10000, 25000, 50000, 100000`
+`n = 1000, 5000, 10000, 25000, 50000`
 
 ### Input types per algorithm:
 
