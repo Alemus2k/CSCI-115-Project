@@ -135,5 +135,5 @@ No separate `.cpp` file is required per the project deliverables spec.
 
 ## Authors
 
-- Alessandro Heaney , Adrian Hilario, Name 3, Name 4
+- Alessandro Heaney , Adrian Hilario, Matthew Kramer, Jose Martinez
 
