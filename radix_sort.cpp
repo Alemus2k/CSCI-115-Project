@@ -1,19 +1,6 @@
-// Sorts integers in range [0, n-1] using Radix Sort (LSD, base 10).
-// Automatically tests multiple input sizes across three cases:
-//   - Best case:    already sorted array*
-//   - Average case: randomly shuffled array
-//   - Worst case:   reverse sorted array*
-//
-// * Radix Sort has no true best/worst case distinction — it always
-//   performs O(d * (n + b)) operations regardless of input order,
-//   where d = number of digits and b = base (10).
-//   For values in [0, n-1], d = floor(log10(n-1)) + 1.
-//   Sorted/reverse-sorted inputs are used for consistency with other algorithms.
-//
-// Radix Sort is not comparison-based; comparison count is reported as N/A.
-//
-// Outputs: input type, n, median time (ns), comparison count (N/A),
-//          and first 10 elements of sorted result.
+// Radix Sort benchmark (LSD, base 10) — values in [0, n-1], runtime is O(d*(n+10)).
+// Not comparison-based; comparison count is reported as N/A.
+// Tests n = 1000 to 50000 across sorted, random, and reverse input for consistency.
 
 #include <iostream>
 #include <vector>
@@ -25,7 +12,7 @@
 using namespace std;
 using namespace std::chrono;
 
-// One pass of counting sort on the digit selected by exp (1, 10, 100, ...)
+// one counting sort pass on the digit at position exp (1, 10, 100, ...)
 void countingSortByDigit(vector<int>& arr, int exp) {
     int n = arr.size();
     vector<int> output(n);
@@ -34,7 +21,7 @@ void countingSortByDigit(vector<int>& arr, int exp) {
     for (int x : arr) count[(x / exp) % 10]++;
     for (int i = 1; i < 10; i++) count[i] += count[i - 1];
 
-    // Traverse right-to-left for stable sort
+    // right-to-left to keep the sort stable
     for (int i = n - 1; i >= 0; i--) {
         int digit = (arr[i] / exp) % 10;
         output[--count[digit]] = arr[i];
@@ -47,22 +34,21 @@ void radixSort(vector<int>& arr) {
     if (arr.empty()) return;
     int maxVal = *max_element(arr.begin(), arr.end());
 
-    // Process each digit from least significant to most significant
+    // LSD: process each digit place from least to most significant
     for (int exp = 1; maxVal / exp > 0; exp *= 10)
         countingSortByDigit(arr, exp);
 }
 
 // Input generators
 
-// Best case: already sorted [0, 1, ..., n-1]
-// (No true best case for Radix Sort — always O(d * (n + b)))
+// sorted input — no true best case, same O(d*n) either way
 vector<int> bestCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
     return arr;
 }
 
-// Average case: randomly shuffled [0, 1, ..., n-1]
+// random shuffle, fixed seed for reproducibility across algorithms
 vector<int> averageCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
@@ -74,16 +60,14 @@ vector<int> averageCase(int n) {
     return arr;
 }
 
-// Worst case: reverse sorted [n-1, n-2, ..., 0]
-// (No true worst case for Radix Sort — always O(d * (n + b)))
+// reverse sorted — no true worst case, same O(d*n) either way
 vector<int> worstCase(int n) {
     vector<int> arr(n);
     for (int i = 0; i < n; i++) arr[i] = n - 1 - i;
     return arr;
 }
 
-// Run one experiment: returns median time in nanoseconds
-// Repeats REPS times and takes the median time.
+// runs the sort reps times and returns the median time (ns)
 long long runExperiment(vector<int> (*generator)(int), int n, int reps = 10) {
     vector<long long> times(reps);
 
@@ -99,7 +83,7 @@ long long runExperiment(vector<int> (*generator)(int), int n, int reps = 10) {
     return times[reps / 2];
 }
 
-// Print first 10 elements of a sorted array for verification
+// quick sanity check — prints the first 10 elements
 void printSample(const vector<int>& arr) {
     int limit = min((int)arr.size(), 10);
     cout << "  First " << limit << " elements: [";
@@ -110,7 +94,6 @@ void printSample(const vector<int>& arr) {
     cout << "]" << endl;
 }
 
-// Main
 int main() {
     vector<int> sizes = {1000, 5000, 10000, 25000, 50000};
     int reps = 10;
@@ -126,9 +109,9 @@ int main() {
     };
 
     vector<Case> cases = {
-        {"Best Case (sorted — note: same O(d*(n+b)) operations)",          bestCase},
-        {"Average Case (random)",                                            averageCase},
-        {"Worst Case (reverse sorted — note: same O(d*(n+b)) operations)", worstCase}
+        {"Best Case (sorted — same O(d*n) operations)",          bestCase},
+        {"Average Case (random)",                                averageCase},
+        {"Worst Case (reverse sorted — same O(d*n) operations)", worstCase}
     };
 
     for (auto& c : cases) {
