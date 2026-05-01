@@ -1,15 +1,6 @@
-// Sorts integers in range [0, n-1] using Merge Sort.
-// Automatically tests multiple input sizes across three cases:
-//   - Best case:    already sorted array*
-//   - Average case: randomly shuffled array
-//   - Worst case:   reverse sorted array*
-//
-// * Merge Sort has no true best/worst case distinction — it always
-//   performs O(n log n) operations regardless of input order.
-//   Sorted/reverse-sorted inputs are used for consistency with other algorithms.
-//
-// Outputs: input type, n, median time (ns), comparison count,
-//          and first 10 elements of sorted result.
+// Merge Sort benchmark — tests n = 1000 to 50000 across sorted, random, and reverse input.
+// Always O(n log n) regardless of input order; different inputs are tested for consistency.
+// Prints median time (ns), comparison count, and first 10 sorted elements per case.
 
 #include <iostream>
 #include <vector>
@@ -29,7 +20,7 @@ long long mergeHelper(vector<int>& arr, int left, int right) {
     comparisons += mergeHelper(arr, left, mid);
     comparisons += mergeHelper(arr, mid + 1, right);
 
-    // Merge the two sorted halves into a temporary buffer
+    // merge the two sorted halves into a temp buffer, then copy back
     vector<int> temp;
     int i = left, j = mid + 1;
     while (i <= mid && j <= right) {
@@ -40,7 +31,7 @@ long long mergeHelper(vector<int>& arr, int left, int right) {
             temp.push_back(arr[j++]);
         }
     }
-    while (i <= mid)  temp.push_back(arr[i++]);
+    while (i <= mid)   temp.push_back(arr[i++]);
     while (j <= right) temp.push_back(arr[j++]);
 
     for (int k = left; k <= right; k++)
@@ -55,15 +46,14 @@ long long mergeSort(vector<int>& arr) {
 
 // Input generators
 
-// Best case: already sorted [0, 1, ..., n-1]
-// (No true best case for Merge Sort — always O(n log n))
+// sorted input — no true best case, same O(n log n) either way
 vector<int> bestCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
     return arr;
 }
 
-// Average case: randomly shuffled [0, 1, ..., n-1]
+// random shuffle, fixed seed for reproducibility across algorithms
 vector<int> averageCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
@@ -75,16 +65,14 @@ vector<int> averageCase(int n) {
     return arr;
 }
 
-// Worst case: reverse sorted [n-1, n-2, ..., 0]
-// (No true worst case for Merge Sort — always O(n log n))
+// reverse sorted — no true worst case, same O(n log n) either way
 vector<int> worstCase(int n) {
     vector<int> arr(n);
     for (int i = 0; i < n; i++) arr[i] = n - 1 - i;
     return arr;
 }
 
-// Run one experiment: returns {median_time_ns, comparisons}
-// Repeats REPS times and takes the median time.
+// runs the sort reps times and returns {median time (ns), comparison count}
 pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, int reps = 10) {
     vector<long long> times(reps);
     long long lastComparisons = 0;
@@ -102,7 +90,7 @@ pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, i
     return {medianTime, lastComparisons};
 }
 
-// Print first 10 elements of a sorted array for verification
+// quick sanity check — prints the first 10 elements
 void printSample(const vector<int>& arr) {
     int limit = min((int)arr.size(), 10);
     cout << "  First " << limit << " elements: [";
@@ -113,7 +101,6 @@ void printSample(const vector<int>& arr) {
     cout << "]" << endl;
 }
 
-// Main
 int main() {
     vector<int> sizes = {1000, 5000, 10000, 25000, 50000};
     int reps = 10;
@@ -129,9 +116,9 @@ int main() {
     };
 
     vector<Case> cases = {
-        {"Best Case (sorted — note: same O(n log n) comparisons)",          bestCase},
-        {"Average Case (random)",                                            averageCase},
-        {"Worst Case (reverse sorted — note: same O(n log n) comparisons)", worstCase}
+        {"Best Case (sorted — same O(n log n) comparisons)",          bestCase},
+        {"Average Case (random)",                                      averageCase},
+        {"Worst Case (reverse sorted — same O(n log n) comparisons)", worstCase}
     };
 
     for (auto& c : cases) {
