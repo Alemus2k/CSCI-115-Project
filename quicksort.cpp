@@ -1,14 +1,6 @@
-// Sorts integers in range [0, n-1] using Quicksort (Median-of-Three pivot).
-// Automatically tests multiple input sizes across three cases:
-//   - Best case:    randomly shuffled array (good pivot distribution)
-//   - Average case: randomly shuffled array
-//   - Worst case:   all equal elements (pivot always equals every element — O(n^2))
-//
-// Pivot selection: median of arr[left], arr[mid], arr[right], placed at arr[right].
-// Partitioning: Lomuto scheme.
-//
-// Outputs: input type, n, median time (ns), comparison count,
-//          and first 10 elements of sorted result.
+// Quicksort benchmark using Median-of-Three pivot (Lomuto partition).
+// Best/average case is O(n log n) on random input; worst case is O(n²) on all-equal input.
+// Prints median time (ns), comparison count, and first 10 sorted elements per case.
 
 #include <iostream>
 #include <vector>
@@ -20,13 +12,12 @@
 using namespace std;
 using namespace std::chrono;
 
-// Rearranges arr[left], arr[mid], arr[right] so their median ends up at arr[right]
+// puts the median of arr[left], arr[mid], arr[right] at arr[right] to use as pivot
 void medianOfThree(vector<int>& arr, int left, int right) {
     int mid = left + (right - left) / 2;
     if (arr[left] > arr[mid])   swap(arr[left], arr[mid]);
     if (arr[left] > arr[right]) swap(arr[left], arr[right]);
     if (arr[mid] > arr[right])  swap(arr[mid], arr[right]);
-    // Median is now at arr[mid]; move it to arr[right] to use as pivot
     swap(arr[mid], arr[right]);
 }
 
@@ -60,8 +51,7 @@ long long quickSort(vector<int>& arr) {
 
 // Input generators
 
-// Best case: randomly shuffled [0, 1, ..., n-1]
-// (Median-of-three pivot performs well on random input; no distinct best case)
+// random input — median-of-three pivots well here, giving O(n log n)
 vector<int> bestCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
@@ -73,20 +63,17 @@ vector<int> bestCase(int n) {
     return arr;
 }
 
-// Average case: randomly shuffled [0, 1, ..., n-1]
-// (Same as best case — both demonstrate O(n log n) average behavior)
+// same as best case — both demonstrate O(n log n) average behavior
 vector<int> averageCase(int n) {
     return bestCase(n);
 }
 
-// Worst case: all equal elements
-// (Any pivot selected by median-of-three equals every element — O(n^2) partitioning)
+// all equal elements — every partition is maximally unbalanced, giving O(n²)
 vector<int> worstCase(int n) {
     return vector<int>(n, 1);
 }
 
-// Run one experiment: returns {median_time_ns, comparisons}
-// Repeats REPS times and takes the median time.
+// runs the sort reps times and returns {median time (ns), comparison count}
 pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, int reps = 10) {
     vector<long long> times(reps);
     long long lastComparisons = 0;
@@ -104,7 +91,7 @@ pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, i
     return {medianTime, lastComparisons};
 }
 
-// Print first 10 elements of a sorted array for verification
+// quick sanity check — prints the first 10 elements
 void printSample(const vector<int>& arr) {
     int limit = min((int)arr.size(), 10);
     cout << "  First " << limit << " elements: [";
@@ -115,7 +102,6 @@ void printSample(const vector<int>& arr) {
     cout << "]" << endl;
 }
 
-// Main
 int main() {
     vector<int> sizes = {1000, 5000, 10000, 25000, 50000};
     int reps = 10;
@@ -131,9 +117,9 @@ int main() {
     };
 
     vector<Case> cases = {
-        {"Best Case (random — good pivot distribution)",    bestCase},
-        {"Average Case (random)",                           averageCase},
-        {"Worst Case (all equal — O(n^2) partitioning)",   worstCase}
+        {"Best Case (random — good pivot distribution)",  bestCase},
+        {"Average Case (random)",                         averageCase},
+        {"Worst Case (all equal — O(n²) partitioning)",  worstCase}
     };
 
     for (auto& c : cases) {
