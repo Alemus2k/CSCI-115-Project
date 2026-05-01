@@ -1,11 +1,7 @@
-// Sorts integers in range [0, n-1] using Selection Sort.
-// Automatically tests multiple input sizes across three cases:
-//   - Best case:    any order (Selection Sort is always O(n^2))
-//   - Average case: randomly shuffled array
-//   - Worst case:   any order (Selection Sort is always O(n^2))
-//
-// Outputs: input type, n, median time (ns), comparison count,
-//          and first 10 elements of sorted result.
+// Selection Sort benchmark — always O(n²) regardless of input order.
+// Tests n = 1000 to 50000 across sorted, random, and reverse input for consistency.
+// Prints median time (ns), comparison count, and first 10 sorted elements per case.
+
 #include <iostream>
 #include <vector>
 #include <algorithm>
@@ -16,8 +12,6 @@
 using namespace std;
 using namespace std::chrono;
 
-// Selection Sort
-// Returns the number of comparisons performed.
 long long selectionSort(vector<int>& arr) {
     long long comparisons = 0;
     int n = arr.size();
@@ -38,15 +32,14 @@ long long selectionSort(vector<int>& arr) {
 
 // Input generators
 
-// Best case: already sorted [0, 1, ..., n-1]
-// (Selection Sort has no true best case — always O(n^2) comparisons)
+// sorted input — no true best case, same O(n²) comparisons either way
 vector<int> bestCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
     return arr;
 }
 
-// Average case: randomly shuffled [0, 1, ..., n-1]
+// random shuffle, fixed seed for reproducibility across algorithms
 vector<int> averageCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
@@ -58,15 +51,14 @@ vector<int> averageCase(int n) {
     return arr;
 }
 
-// Worst case: reverse sorted [n-1, n-2, ..., 0]
-// (Still O(n^2) — included to match experimental design of other sorts)
+// reverse sorted — still O(n²), included to match the other algorithms
 vector<int> worstCase(int n) {
     vector<int> arr(n);
     for (int i = 0; i < n; i++) arr[i] = n - 1 - i;
     return arr;
 }
 
-// Run one experiment: returns {median_time_ns, comparisons}
+// runs the sort reps times and returns {median time (ns), comparison count}
 pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, int reps = 10) {
     vector<long long> times(reps);
     long long lastComparisons = 0;
@@ -84,7 +76,7 @@ pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, i
     return {medianTime, lastComparisons};
 }
 
-// Print first 10 elements of a sorted array for verification
+// quick sanity check — prints the first 10 elements
 void printSample(const vector<int>& arr) {
     int limit = min((int)arr.size(), 10);
     cout << "  First " << limit << " elements: [";
@@ -95,7 +87,6 @@ void printSample(const vector<int>& arr) {
     cout << "]" << endl;
 }
 
-// Main
 int main() {
     vector<int> sizes = {1000, 5000, 10000, 25000, 50000};
     int reps = 10;
@@ -111,9 +102,9 @@ int main() {
     };
 
     vector<Case> cases = {
-        {"Best Case (sorted — note: same O(n^2) comparisons)",          bestCase},
-        {"Average Case (random)",                                        averageCase},
-        {"Worst Case (reverse sorted — note: same O(n^2) comparisons)", worstCase}
+        {"Best Case (sorted — same O(n²) comparisons)",          bestCase},
+        {"Average Case (random)",                                 averageCase},
+        {"Worst Case (reverse sorted — same O(n²) comparisons)", worstCase}
     };
 
     for (auto& c : cases) {
