@@ -1,11 +1,6 @@
-// Sorts integers in range [0, n-1] using Bubble Sort (with early-exit flag).
-// Automatically tests multiple input sizes across three cases:
-//   - Best case:    already sorted array (early-exit fires after one pass — O(n))
-//   - Average case: randomly shuffled array
-//   - Worst case:   reverse sorted array
-//
-// Outputs: input type, n, median time (ns), comparison count,
-//          and first 10 elements of sorted result.
+// Bubble Sort benchmark with early-exit flag — tests n = 1000 to 50000.
+// Best case is O(n) on sorted input; average and worst case are O(n²).
+// Prints median time (ns), comparison count, and first 10 sorted elements per case.
 
 #include <iostream>
 #include <vector>
@@ -29,23 +24,21 @@ long long bubbleSort(vector<int>& arr) {
                 swapped = true;
             }
         }
-        // Early exit if no swaps occurred — array is already sorted
-        if (!swapped) break;
+        if (!swapped) break;  // no swaps means it's sorted — bail out early
     }
     return comparisons;
 }
 
 // Input generators
 
-// Best case: already sorted [0, 1, 2, ..., n-1]
-// (Early-exit flag fires after one pass — O(n) comparisons)
+// sorted ascending — early exit fires after one pass, giving O(n)
 vector<int> bestCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
     return arr;
 }
 
-// Average case: randomly shuffled [0, 1, ..., n-1]
+// random shuffle, fixed seed for reproducibility across algorithms
 vector<int> averageCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
@@ -57,15 +50,14 @@ vector<int> averageCase(int n) {
     return arr;
 }
 
-// Worst case: reverse sorted [n-1, n-2, ..., 1, 0]
+// reverse sorted — every element bubbles the full distance
 vector<int> worstCase(int n) {
     vector<int> arr(n);
     for (int i = 0; i < n; i++) arr[i] = n - 1 - i;
     return arr;
 }
 
-// Run one experiment: returns {median_time_ns, comparisons}
-// Repeats REPS times and takes the median time.
+// runs the sort reps times and returns {median time (ns), comparison count}
 pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, int reps = 10) {
     vector<long long> times(reps);
     long long lastComparisons = 0;
@@ -83,7 +75,7 @@ pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, i
     return {medianTime, lastComparisons};
 }
 
-// Print first 10 elements of a sorted array for verification
+// quick sanity check — prints the first 10 elements
 void printSample(const vector<int>& arr) {
     int limit = min((int)arr.size(), 10);
     cout << "  First " << limit << " elements: [";
@@ -94,7 +86,6 @@ void printSample(const vector<int>& arr) {
     cout << "]" << endl;
 }
 
-// Main
 int main() {
     vector<int> sizes = {1000, 5000, 10000, 25000, 50000};
     int reps = 10;
