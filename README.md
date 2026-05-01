@@ -1,139 +1,122 @@
-# CSCI 115 — Sorting Algorithms Project
-## README
+# CSCI 115 — Sorting Algorithms & Two-Sum Project
+
+## Team
+
+**Members:** Alessandro Heaney, Adrian Hilario, Matthew Kramer, Jose Martinez
 
 ---
 
-## Overview
+## Language & Environment
 
-This project implements and benchmarks 8 sorting algorithms in C++
-as part of a study comparing theoretical complexity against
-experimental performance. Each algorithm is in its own `.cpp` file
-and runs automatically across multiple input sizes and input types
-(best case, average case, worst case).
-
----
-
-## Files Included
-
-| File                  | Algorithm                          |
-|-----------------------|------------------------------------|
-| `insertion_sort.cpp`  | Insertion Sort                     |
-| `selection_sort.cpp`  | Selection Sort                     |
-| `bubble_sort.cpp`     | Bubble Sort (with early-exit flag) |
-| `merge_sort.cpp`      | Merge Sort                         |
-| `quicksort.cpp`       | Quicksort (Median-of-Three pivot)  |
-| `heapsort.cpp`        | Heapsort                           |
-| `counting_sort.cpp`   | Counting Sort                      |
-| `radix_sort.cpp`      | Radix Sort (LSD, base 10)          |
+- **Language:** C++17
+- **Compiler:** g++ (GCC 7+) or clang++ (Clang 5+)
+- **Python:** 3.8+ (graph generation only — not required to run the algorithms)
+- **Python packages:** `matplotlib`, `numpy`
+- **OS tested:** macOS 15.7.4 (Apple M2), Linux
 
 ---
 
-## Dependencies
+## How to Run Part 1 (Sorting Benchmarks)
 
-- A C++ compiler supporting **C++17** or later
-  - `g++` (GCC 7+) — recommended
-  - `clang++` (Clang 5+) — also works
-  - MSVC 2017+ on Windows
-- No external libraries required — uses only the C++ Standard Library
+Each of the 8 sorting algorithms is a standalone C++ program. It generates its own inputs, runs benchmarks, and prints timing tables.
 
----
-
-## Input Design
-
-All arrays contain integers in the range **[0, n-1]**
-
-### Input sizes tested:
-`n = 1000, 5000, 10000, 25000, 50000`
-
-### Input types per algorithm:
-
-| Algorithm      | Best Case Input         | Average Case Input   | Worst Case Input         |
-|----------------|-------------------------|----------------------|--------------------------|
-| Insertion Sort | Already sorted          | Randomly shuffled    | Reverse sorted           |
-| Selection Sort | Already sorted*         | Randomly shuffled    | Reverse sorted*          |
-| Bubble Sort    | Already sorted          | Randomly shuffled    | Reverse sorted           |
-| Merge Sort     | Already sorted*         | Randomly shuffled    | Reverse sorted*          |
-| Quicksort      | Randomly shuffled       | Randomly shuffled    | All equal elements       |
-| Heapsort       | Already sorted*         | Randomly shuffled    | Reverse sorted*          |
-| Counting Sort  | Already sorted*         | Randomly shuffled    | Reverse sorted*          |
-| Radix Sort     | Already sorted*         | Randomly shuffled    | Reverse sorted*          |
-
-\* These algorithms have no true best/worst case distinction — they
-  always perform the same number of operations regardless of input
-  order. Sorted/reverse-sorted inputs are used for consistency.
-
----
-
-## Output Format
-
-Each program prints a table for each case (best, average, worst)
-showing:
-
-- `n` — input size
-- `Median Time (ns)` — median execution time over 10 runs in nanoseconds
-- `Comparisons` — number of element-to-element comparisons
-  (reported as N/A for Counting Sort and Radix Sort, which are not
-  comparison-based)
-- First 10 elements of the sorted output (printed for n=1000 only,
-  for quick correctness verification)
-
-### Sample output (Insertion Sort):
+**Compile and run one algorithm:**
+```bash
+g++ -O2 -std=c++17 part1_sorting/src/insertion_sort.cpp -o insertion_sort
+./insertion_sort
 ```
-======================================================
-  INSERTION SORT — Performance Study
-======================================================
 
---- Best Case (sorted) ---
-n         Median Time (ns)    Comparisons
---------------------------------------------------
-1000      2341                999
-  First 10 elements: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-5000      11203               4999
-10000     22917               9999
-...
+**Compile and run all 8 at once:**
+```bash
+cd part1_sorting/tests
+bash run_all.sh
+```
+
+Expected output: three tables (best / average / worst case) per algorithm, showing median time in nanoseconds over 10 runs across n = 1000, 5000, 10000, 25000, 50000, plus the first 10 sorted elements for n = 1000.
+
+---
+
+## How to Run Part 2 (Two-Sum)
+
+Two implementations are provided: brute-force O(n²) and hash-map O(n).
+
+**Compile:**
+```bash
+g++ -O2 -std=c++17 part2_twosum/src/two_sum_brute.cpp     -o two_sum_brute
+g++ -O2 -std=c++17 part2_twosum/src/two_sum_efficient.cpp -o two_sum_efficient
+```
+
+**Input format:** first line is `n target`, second line is `n` space-separated integers.
+
+**Example:**
+```bash
+echo "5 9
+2 7 11 15 4" | ./two_sum_brute
+# Output: Indices: 0 and 1  (values: 2 + 7 = 9)
+
+echo "5 9
+2 7 11 15 4" | ./two_sum_efficient
+# Output: Indices: 0 and 1  (values: 2 + 7 = 9)
+```
+
+**Run all sample test cases:**
+```bash
+cd part2_twosum/tests
+bash run_tests.sh
 ```
 
 ---
 
-## Timing Mechanism
+## How to Reproduce Graphs
 
-- Uses `std::chrono::high_resolution_clock`
-- Timer wraps only the sort call — array generation is excluded
-- **10 repetitions** per (algorithm, case, size) combination
-- **Median** of 10 runs is reported (robust against OS scheduling noise)
+Install Python dependencies (once):
+```bash
+pip install matplotlib numpy
+```
 
----
+Run the script from the project root:
+```bash
+python3 generate_graphs.py
+```
 
-## Notes on Comparison Counting
+The script compiles all 8 sorting programs, runs the benchmarks, and saves 17 PNG files to `graphs/`:
 
-- For comparison-based sorts (Insertion, Selection, Bubble, Merge,
-  Quicksort, Heapsort), every `if (arr[i] > arr[j])` style check
-  increments a counter.
-- Counting Sort and Radix Sort do not compare elements to each other,
-  so their comparison count is reported as N/A.
-- These comparison counts are used in Part 1 Section 5 of the report
-  to analyze whether #comparisons predicts execution time.
+| Figures | Content |
+|---------|---------|
+| 1 – 8   | Time / f(n) vs n for each algorithm |
+| 9 – 14  | Time / #comparisons vs n for the 6 comparison-based algorithms |
+| 15 – 17 | Cross-algorithm performance comparison (best / average / worst case) |
 
----
-
-## Reproducibility
-
-- Random shuffles use `srand(42)` (fixed seed) for reproducibility.
-- Running the same program twice on the same machine will produce
-  the same array contents, but timing may vary slightly due to OS
-  scheduling, CPU caching, and other hardware effects.
+Estimated runtime: ~1 minute on a modern laptop.
 
 ---
 
-## Part 2 — Two-Sum Problem
+## Notes
 
-The Two-Sum implementations (brute force and efficient) are described
-in the written report with pseudocode and complexity analysis.
-No separate `.cpp` file is required per the project deliverables spec.
+- **Timing:** `std::chrono::high_resolution_clock` wraps the sort call only — array generation is not timed.
+- **Repetitions:** 10 runs per (algorithm, case, size) combination; the median is reported.
+- **Reproducibility:** random shuffles use `srand(42)` (fixed seed) so array contents are identical across machines.
+- **Comparisons:** Counting Sort and Radix Sort are not comparison-based; their comparison count is reported as N/A.
+- **Quicksort worst case:** all-equal input (`[1,1,...,1]`), which makes every partition maximally unbalanced. All other algorithms use sorted or reverse-sorted inputs.
+- **Input range:** all arrays contain integers in [0, n-1].
 
 ---
 
-## Authors
+## Repository Structure
 
-- Alessandro Heaney , Adrian Hilario, Matthew Kramer, Jose Martinez
-
+```
+README.md
+generate_graphs.py          ← graph reproduction script
+part1_sorting/
+    src/                    ← 8 sorting algorithm .cpp files
+    tests/
+        run_all.sh          ← compile + run all benchmarks
+part2_twosum/
+    src/
+        two_sum_brute.cpp       ← O(n²) brute force
+        two_sum_efficient.cpp   ← O(n) hash-map solution
+    tests/
+        test_cases.txt          ← sample inputs
+        run_tests.sh            ← run both programs against test cases
+theoretical_vs_experimental_data.docx   ← full written report
+```
