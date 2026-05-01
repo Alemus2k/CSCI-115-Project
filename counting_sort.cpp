@@ -1,18 +1,6 @@
-// Sorts integers in range [0, n-1] using Counting Sort.
-// Automatically tests multiple input sizes across three cases:
-//   - Best case:    already sorted array*
-//   - Average case: randomly shuffled array
-//   - Worst case:   reverse sorted array*
-//
-// * Counting Sort has no true best/worst case distinction — it always
-//   performs O(n + k) operations regardless of input order, where
-//   k = n-1 (the maximum value in the array for these inputs).
-//   Sorted/reverse-sorted inputs are used for consistency with other algorithms.
-//
-// Counting Sort is not comparison-based; comparison count is reported as N/A.
-//
-// Outputs: input type, n, median time (ns), comparison count (N/A),
-//          and first 10 elements of sorted result.
+// Counting Sort benchmark — values in [0, n-1] so k = n, making runtime always O(n).
+// Not comparison-based; comparison count is reported as N/A.
+// Tests n = 1000 to 50000 across sorted, random, and reverse input for consistency.
 
 #include <iostream>
 #include <vector>
@@ -31,7 +19,7 @@ void countingSort(vector<int>& arr) {
     vector<int> count(maxVal + 1, 0);
     for (int x : arr) count[x]++;
 
-    // Overwrite arr with values in sorted order
+    // write values back in sorted order
     int idx = 0;
     for (int v = 0; v <= maxVal; v++)
         while (count[v]-- > 0)
@@ -40,15 +28,14 @@ void countingSort(vector<int>& arr) {
 
 // Input generators
 
-// Best case: already sorted [0, 1, ..., n-1]
-// (No true best case for Counting Sort — always O(n + k))
+// sorted input — no true best case, same O(n) either way
 vector<int> bestCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
     return arr;
 }
 
-// Average case: randomly shuffled [0, 1, ..., n-1]
+// random shuffle, fixed seed for reproducibility across algorithms
 vector<int> averageCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
@@ -60,16 +47,14 @@ vector<int> averageCase(int n) {
     return arr;
 }
 
-// Worst case: reverse sorted [n-1, n-2, ..., 0]
-// (No true worst case for Counting Sort — always O(n + k))
+// reverse sorted — no true worst case, same O(n) either way
 vector<int> worstCase(int n) {
     vector<int> arr(n);
     for (int i = 0; i < n; i++) arr[i] = n - 1 - i;
     return arr;
 }
 
-// Run one experiment: returns median time in nanoseconds
-// Repeats REPS times and takes the median time.
+// runs the sort reps times and returns the median time (ns)
 long long runExperiment(vector<int> (*generator)(int), int n, int reps = 10) {
     vector<long long> times(reps);
 
@@ -85,7 +70,7 @@ long long runExperiment(vector<int> (*generator)(int), int n, int reps = 10) {
     return times[reps / 2];
 }
 
-// Print first 10 elements of a sorted array for verification
+// quick sanity check — prints the first 10 elements
 void printSample(const vector<int>& arr) {
     int limit = min((int)arr.size(), 10);
     cout << "  First " << limit << " elements: [";
@@ -96,7 +81,6 @@ void printSample(const vector<int>& arr) {
     cout << "]" << endl;
 }
 
-// Main
 int main() {
     vector<int> sizes = {1000, 5000, 10000, 25000, 50000};
     int reps = 10;
@@ -112,9 +96,9 @@ int main() {
     };
 
     vector<Case> cases = {
-        {"Best Case (sorted — note: same O(n + k) operations)",          bestCase},
-        {"Average Case (random)",                                          averageCase},
-        {"Worst Case (reverse sorted — note: same O(n + k) operations)", worstCase}
+        {"Best Case (sorted — same O(n) operations)",          bestCase},
+        {"Average Case (random)",                              averageCase},
+        {"Worst Case (reverse sorted — same O(n) operations)", worstCase}
     };
 
     for (auto& c : cases) {
