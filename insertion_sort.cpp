@@ -1,11 +1,6 @@
-// Sorts integers in range [0, n-1] using Insertion Sort.
-// Automatically tests multiple input sizes across three cases:
-//   - Best case:    already sorted array
-//   - Average case: randomly shuffled array
-//   - Worst case:   reverse sorted array
-//
-// Outputs: input type, n, median time (ns), comparison count,
-//          and first 10 elements of sorted result.
+// Insertion Sort benchmark — tests n = 1000 to 50000 across sorted, random, and reverse input.
+// Best case is O(n) on already-sorted input; average and worst case are O(n²).
+// Prints median time (ns), comparison count, and first 10 sorted elements per case.
 
 #include <iostream>
 #include <vector>
@@ -23,7 +18,6 @@ long long insertionSort(vector<int>& arr) {
     for (int i = 1; i < n; i++) {
         int key = arr[i];
         int j = i - 1;
-        // move elements greater than key one position ahead
         while (j >= 0) {
             comparisons++;
             if (arr[j] > key) {
@@ -40,18 +34,17 @@ long long insertionSort(vector<int>& arr) {
 
 // Input generators
 
-// Best case: already sorted [0, 1, 2, ..., n-1]
+// sorted ascending — inner loop never executes, giving O(n)
 vector<int> bestCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
     return arr;
 }
 
-// Average case: randomly shuffled [0, 1, ..., n-1]
+// random shuffle, fixed seed for reproducibility across algorithms
 vector<int> averageCase(int n) {
     vector<int> arr(n);
     iota(arr.begin(), arr.end(), 0);
-    // Use a fixed seed for reproducibility across algorithms
     srand(42);
     for (int i = n - 1; i > 0; i--) {
         int j = rand() % (i + 1);
@@ -60,15 +53,14 @@ vector<int> averageCase(int n) {
     return arr;
 }
 
-// Worst case: reverse sorted [n-1, n-2, ..., 1, 0]
+// reverse sorted — every element shifts the full distance back
 vector<int> worstCase(int n) {
     vector<int> arr(n);
     for (int i = 0; i < n; i++) arr[i] = n - 1 - i;
     return arr;
 }
 
-// Run one experiment: returns {median_time_ns, comparisons}
-// Repeats REPS times and takes the median time.
+// runs the sort reps times and returns {median time (ns), comparison count}
 pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, int reps = 10) {
     vector<long long> times(reps);
     long long lastComparisons = 0;
@@ -81,13 +73,12 @@ pair<long long, long long> runExperiment(vector<int> (*generator)(int), int n, i
         times[r] = duration_cast<nanoseconds>(end - start).count();
     }
 
-    // Median time
     sort(times.begin(), times.end());
     long long medianTime = times[reps / 2];
     return {medianTime, lastComparisons};
 }
 
-// Print first 10 elements of a sorted array for verification
+// quick sanity check — prints the first 10 elements
 void printSample(const vector<int>& arr) {
     int limit = min((int)arr.size(), 10);
     cout << "  First " << limit << " elements: [";
@@ -98,9 +89,7 @@ void printSample(const vector<int>& arr) {
     cout << "]" << endl;
 }
 
-// Main
 int main() {
-    // Input sizes to test
     vector<int> sizes = {1000, 5000, 10000, 25000, 50000};
     int reps = 10;
 
@@ -109,7 +98,6 @@ int main() {
     cout << "======================================================" << endl;
     cout << fixed << setprecision(2);
 
-    // Case definitions: label, generator function
     struct Case {
         string label;
         vector<int> (*generator)(int);
@@ -137,7 +125,6 @@ int main() {
                  << setw(20) << comps
                  << endl;
 
-            // Print sample for smallest size only
             if (n == sizes.front()) {
                 vector<int> sample = c.generator(n);
                 insertionSort(sample);
