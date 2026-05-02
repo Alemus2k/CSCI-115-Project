@@ -10,8 +10,6 @@
 
 - **Language:** C++17
 - **Compiler:** g++ (GCC 7+) or clang++ (Clang 5+)
-- **Python:** 3.8+ (graph generation only — not required to run the algorithms)
-- **Python packages:** `matplotlib`, `numpy`
 - **OS tested:** macOS 15.7.4 (Apple M2), Linux
 
 ---
@@ -67,30 +65,6 @@ bash run_tests.sh
 
 ---
 
-## How to Reproduce Graphs
-
-Install Python dependencies (once):
-```bash
-pip install matplotlib numpy
-```
-
-Run the script from the project root:
-```bash
-python3 generate_graphs.py
-```
-
-The script compiles all 8 sorting programs, runs the benchmarks, and saves 17 PNG files to `graphs/`:
-
-| Figures | Content |
-|---------|---------|
-| 1 – 8   | Time / f(n) vs n for each algorithm |
-| 9 – 14  | Time / #comparisons vs n for the 6 comparison-based algorithms |
-| 15 – 17 | Cross-algorithm performance comparison (best / average / worst case) |
-
-Estimated runtime: ~1 minute on a modern laptop.
-
----
-
 ## Notes
 
 - **Timing:** `std::chrono::high_resolution_clock` wraps the sort call only — array generation is not timed.
@@ -106,7 +80,6 @@ Estimated runtime: ~1 minute on a modern laptop.
 
 ```
 README.md
-generate_graphs.py          ← graph reproduction script
 part1_sorting/
     src/                    ← 8 sorting algorithm .cpp files
     tests/
