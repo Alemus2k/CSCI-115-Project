@@ -2,6 +2,7 @@
 
 ## Team
 
+**Team Name:** Team 8
 **Members:** Alessandro Heaney, Adrian Hilario, Matthew Kramer, Jose Martinez
 
 ---
@@ -62,6 +63,14 @@ echo "5 9
 cd part2_twosum/tests
 bash run_tests.sh
 ```
+
+---
+
+## How to Reproduce Graphs
+
+1. Compile and run each sorting program (see Part 1 instructions above) to generate the timing output.
+2. Copy the median time and comparison count values from the printed tables into a spreadsheet.
+3. Graphs were produced in Microsoft Excel from that data — one chart per algorithm for Sections 4 and 5, and combined charts for Section 3.
 
 ---
 
